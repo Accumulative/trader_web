@@ -1,0 +1,31 @@
+version: '2.1'
+services:
+  app:
+    build: ../src
+    volumes: 
+      - "../src:/srv"
+    networks:
+      - trader-net
+    env_file: ../src/config.env
+    ports:
+      - 3000:3000
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mysql:5.6
+    healthcheck:
+      test: ["CMD", "mysql", "-h", $MYSQL_HOST, "-P", $MYSQL_PORT, "-uroot", "-p${MYSQL_ROOT_PASSWORD}", $MYSQL_DATABASE]
+      interval: 3s
+      timeout: 30s
+      retries: 50
+    networks:
+      - trader-net
+    volumes:
+      - /var/lib/mysql
+    env_file: ./mysql/config.env
+    ports:
+      - 3306:3306
+networks:
+  trader-net:
+    driver: bridge
