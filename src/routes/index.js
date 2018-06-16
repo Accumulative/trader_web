@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const tradeController = require('../controllers/trades');
 const paramController = require('../controllers/params');
-const config = require('../config-dev');
+const config = require('../config');
 
 var auth = function(req, res, next) {
   if (req.session && req.session.user === config.Admin.username && req.session.admin)
