@@ -1,0 +1,5 @@
+
+mixin alert(style)
+  - var style = (typeof style === 'undefined') ? "success" : style
+  div(class="alert alert-"+style, role="alert")
+    block

@@ -1,19 +1,39 @@
+include mixins/navbar
 doctype
 html
   head
-    title #{title} - My Site
+    - var homeActive = ((page === 'home') ? "active" : "inactive")
+    - var tradesActive = ((page === 'trades') ? "active" : "inactive")
+    - var paramsActive = ((page === 'params') ? "active" : "inactive")
+    - var graphsActive = ((page === 'graphs') ? "active" : "inactive")
+    title(class="custom") #{title}
     //- link(rel='stylesheet', href='/stylesheets/style.css')
+    +nav("Kieran's trading site", "dropdown_menu", "inverse")
+      +nav_item_group()
+        +nav_item( "/",　homeActive ) Home
+        +nav_item( "trades", tradesActive) Trades
+        +nav_item( "params", paramsActive) Params
+        +nav_item( "graphs", graphsActive) Graphs
+      +nav_item_group("right")
+        if user == null
+          +nav_item( "/login") Login
+        else
+          +nav_item( "/logout") Logout (#{user})
+
+      //- +nav_item_dropdown( "#" )( label="Dropdown" )
     link(
       href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css',
       rel='stylesheet'
     )
+    block vars
   body
-    header
-      h1 My Site
     .container
-      .main-content
-        block content
-      .sidebar
-        block sidebar
-    footer
-      p Running on node with Express, Jade and Stylus
+      header
+        h1(class="custom") Kieran's trading platform
+        h3(class="custom") #{title} #{pair} 
+      .container
+        .main-content
+          block content
+      footer
+        p(class="custom") Kieran's trading site 
+    

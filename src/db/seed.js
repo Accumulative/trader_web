@@ -1,12 +1,13 @@
 var mysql = require('mysql');
-const config = require('../config');
+const config = require('../config-dev');
 const scripts = require('./sql_scripts')
 
 var con = mysql.createConnection({
   host: config.database.host,
   user: config.database.user,
   password: config.database.password,
-  database: config.database.database
+  database: config.database.database,
+  port     : '3306'
 });
 
 exports.seedTable = async function() {
@@ -32,7 +33,11 @@ function　newDatabase() {
 function　createTables() {
   con.query(scripts.create_trades_sql, function (err, result) {
     if (err) throw err;
-    console.log("Result: " + result);
+    console.log("Created trades table");
+  });
+  con.query(scripts.create_parameters_sql, function (err, result) {
+    if (err) throw err;
+    console.log("Created parameters table");
   });
 }
 

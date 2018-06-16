@@ -1,0 +1,13 @@
+include mixins/pagination
+extend layout
+block vars
+  - var page = 'param';
+block content
+  form(action="/params/" + param.id, method="post")
+   div(class="control-group")
+     label(class="control-label") Value:  
+     div(class="controls")
+       input(class="text-box single-line", name="value", type="text", value=param.value) 
+   div(class="form-actions")
+     input(type="submit", value="Save" class="btn")
+  a(href="/params") Back to list

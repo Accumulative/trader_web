@@ -1,0 +1,23 @@
+include mixins/pagination
+extend layout
+block vars
+  - var page = 'params'
+block content
+  - var paramList = params
+  div
+    table.table.table-hover
+      thead
+        tr
+          th ID
+          th Name
+          th Value
+          th Actions
+      tbody
+        each param in paramList
+          tr
+            td=param.id
+            td=param.name
+            td=param.value
+            td
+              a(href="/params/"+param.id) Edit
+    +pagination(pagination.startPage,pagination.maxPage,pagination.currPage,'/params?page=')

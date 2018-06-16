@@ -1,22 +1,29 @@
+include mixins/pagination
 extend layout
+block vars
+  - var page = 'trades'
 block content
-  p
-    | Vivamus hendrerit arcu sed erat molestie
-    | vehicula. Sed auctor neque eu tellus
-    | rhoncus ut eleifend nibh porttitor. Ut in.
-  p
-    | Donec congue lacinia dui, a porttitor
-    | lectus condimentum laoreet. Nunc eu
-    | ullamcorper orci. Quisque eget odio ac
-    | lectus vestibulum faucibus eget in metus.
-    | In pellentesque faucibus vestibulum. Nulla
-    | at nulla justo, eget luctus tortor.
-block sidebar
-  .widget
-    h1 Widget
-    p
-      | Sed auctor neque eu tellus rhoncus ut
-      | eleifend nibh porttitor. Ut in nulla enim.
-    p
-      | Vivamus hendrerit arcu sed erat molestie
-      | vehicula.
+  - var tradelist = trades
+  div
+    table.table.table-hover
+      thead
+        tr
+          th ID
+          th Open date
+          th Open price
+          th Close date
+          th Close price
+          th Buy / Sell
+      tbody
+        each trade in tradelist
+          tr
+            td=trade.id
+            td=trade.open_date
+            td=trade.open_price
+            td=trade.close_date
+            td=trade.close_price
+            if trade.buy == 1
+              td='Buy'
+            else 
+              td='Sell'
+    +pagination(pagination.startPage,pagination.maxPage,pagination.currPage,'/page?=')
