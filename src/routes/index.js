@@ -93,18 +93,41 @@ router.get('/', async function(req, res, next) {
 router.get('/graphs', async function(req, res, next) {
   
   var endDate = new Date();
+  endDate.setTime(endDate.getTime() + (24*60*60*1000));
   if(req.query.endDate) {
     endDate = new Date(parseInt(req.query.endDate));
   }
   var startDate = new Date(); 
   startDate.setTime(endDate.getTime() - (24*60*60*1000) * 30);
 
+  
+  
   var period = await getParametersByName("period");
-  // var trades = await getTradesByDate();
   var pair = await getParametersByName("pair");
+
+  var predDateEnd = new Date();
+  predDateEnd.setTime(predDateEnd.getTime() + (24*60*60*1000) * 100);
   var buyTrades = await getTradesByDate(startDate.getTime()/1000, endDate.getTime()/1000, "open_date");
   var sellTrades = await getTradesByDate(startDate.getTime()/1000, endDate.getTime()/1000, "close_date");
-  res.render('graph', { title: "Graph", user: req.session.user, buyTrades: JSON.stringify(buyTrades),sellTrades: JSON.stringify(sellTrades), period: period.value, pair: pair.value, startDate: startDate, endDate: endDate});
+  var preds = await getPredictionsByDate(startDate.getTime()/1000, predDateEnd.getTime()/1000, "pred_date");
+  var highPreds = [];
+  var lowPreds = [];
+  var midPreds = [];
+  preds.forEach(element => {
+    switch (element.type) {
+      case 0:
+        midPreds.push(element);
+        break;
+      case 1:
+        lowPreds.push(element);
+        break;
+      case 2:
+        highPreds.push(element);
+        break;
+    } 
+  });
+  res.render('graph',{ title: "Graph", user: req.session.user, buyTrades: JSON.stringify(buyTrades),sellTrades: JSON.stringify(sellTrades), 
+  midPreds: JSON.stringify(midPreds), lowPreds: JSON.stringify(lowPreds),highPreds: JSON.stringify(highPreds),period: period.value, pair: pair.value, startDate: startDate, endDate: endDate});
 });
 
 async function getTrades(pageNo, perPage) {
@@ -130,6 +153,10 @@ async function updateParameterById(param) {
 
 async function getTradesByDate(dateStart, dateFinish, dateName) {
   let result = await tradeController.getTradesByDate(dateStart, dateFinish, dateName);
+  return result;
+};
+async function getPredictionsByDate(dateStart, dateFinish, dateName) {
+  let result = await tradeController.getPredictionsByDate(dateStart, dateFinish, dateName);
   return result;
 };
 

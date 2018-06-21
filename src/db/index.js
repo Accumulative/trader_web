@@ -21,7 +21,7 @@ exports.get = function(type, sort, pageNo, pageCount) {
 }
 
 exports.getByDate = function(type, sort, dateName, s, e) {
-  let sql = "SELECT open_price, close_price, unix_timestamp(open_date) as open_date, unix_timestamp(close_date) as close_date FROM " + type + " WHERE " + dateName + " BETWEEN from_unixtime(floor(" + s + ")) AND from_unixtime(floor(" + e + ")) ORDER BY " + sort + ";"
+  let sql = "SELECT *, unix_timestamp(" + dateName + ") as " + dateName + "_conv FROM " + type + " WHERE " + dateName + " BETWEEN from_unixtime(floor(" + s + ")) AND from_unixtime(floor(" + e + ")) ORDER BY " + sort + ";"
   console.log(sql);
   return new Promise(function(resolve) {
     con.query(sql, function (err, result) {

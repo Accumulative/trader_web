@@ -21,11 +21,15 @@ exports.seedTable = async function() {
   }
 }
 
-function　newDatabase() {
+function newDatabase() {
   return new Promise(function(resolve) {
     con.query(scripts.check_trades_exists_sql, function (err, result) {
       if (err) resolve(false);
-      resolve(true);
+      if(result[0].table_no == 3)
+      {
+        resolve(true);
+      }
+      resolve(false);
     });
   });
 }
@@ -38,6 +42,10 @@ function　createTables() {
   con.query(scripts.create_parameters_sql, function (err, result) {
     if (err) throw err;
     console.log("Created parameters table");
+  });
+  con.query(scripts.create_predictions_sql, function (err, result) {
+    if (err) throw err;
+    console.log("Created predictions table");
   });
 }
 

@@ -23,10 +23,14 @@ block vars
     var dateEnd = new Date("#{endDate}").valueOf() / 1000;
     var buyTrades = JSON.parse('!{buyTrades}');
     var sellTrades = JSON.parse('!{sellTrades}');
+    var lowPreds = JSON.parse('!{lowPreds}');
+    var midPreds = JSON.parse('!{midPreds}');
+    var highPreds = JSON.parse('!{highPreds}');
     var page = 'graphs'
     var url = "https://poloniex.com/public?command=returnChartData&currencyPair=#{pair}&start="+dateStart+"&end="+dateEnd+"&period=#{period}";
     function httpGetAsync(theUrl, callback)
     {
+        console.log(theUrl);
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.onreadystatechange = function() { 
             if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
@@ -41,15 +45,27 @@ block vars
      var priceArray = [];
      var buyArray = [];
      var sellArray = [];
+     var midArray = [];
+     var lowArray = [];
+     var highArray = [];
      
      json_object.forEach(function(obj) { 
       priceArray.push({x: obj.date, y: obj.weightedAverage});
      });
      buyTrades.forEach(function(obj) { 
-      buyArray.push({x: obj.open_date, y: obj.open_price});
+      buyArray.push({x: obj.open_date_conv, y: obj.open_price});
      });
      sellTrades.forEach(function(obj) { 
-      sellArray.push({x: obj.close_date, y: obj.close_price});
+      sellArray.push({x: obj.close_date_conv, y: obj.close_price});
+     });
+     lowPreds.forEach(function(obj) { 
+      lowArray.push({x: obj.pred_date_conv, y: obj.value});
+     });
+     highPreds.forEach(function(obj) { 
+      highArray.push({x: obj.pred_date_conv, y: obj.value});
+     });
+     midPreds.forEach(function(obj) { 
+      midArray.push({x: obj.pred_date_conv, y: obj.value});
      });
      console.log(priceArray, buyArray);
      var id = 'chartone';
@@ -77,6 +93,30 @@ block vars
                  data: sellArray,
                  label: 'Sell',                     // 'buy' price data
                  borderColor: 'rgb(255, 99, 132)', // line color
+                 backgroundColor: 'rgba(255, 99, 132, 0.5)', // fill color
+                 fill: false,                      // no fill
+                 lineTension: 0                    // straight line
+             },
+             {
+                 data: lowArray,
+                 label: 'Low Pred',                     // 'buy' price data
+                 borderColor: 'rgb(255, 180, 234)', // line color
+                 backgroundColor: 'rgba(255, 99, 132, 0.5)', // fill color
+                 fill: false,                      // no fill
+                 lineTension: 0                    // straight line
+             },
+             {
+                 data: midArray,
+                 label: 'Avg Pred',                     // 'buy' price data
+                 borderColor: 'rgb(23, 255, 23)', // line color
+                 backgroundColor: 'rgba(255, 99, 132, 0.5)', // fill color
+                 fill: false,                      // no fill
+                 lineTension: 0                    // straight line
+             },
+             {
+                 data: highArray,
+                 label: 'High pred',                     // 'buy' price data
+                 borderColor: 'rgb(12, 123, 132)', // line color
                  backgroundColor: 'rgba(255, 99, 132, 0.5)', // fill color
                  fill: false,                      // no fill
                  lineTension: 0                    // straight line
