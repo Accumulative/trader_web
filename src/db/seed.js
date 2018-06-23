@@ -25,7 +25,7 @@ function newDatabase() {
   return new Promise(function(resolve) {
     con.query(scripts.check_trades_exists_sql, function (err, result) {
       if (err) resolve(false);
-      if(result[0].table_no == 3)
+      if(result[0].table_no == 4)
       {
         resolve(true);
       }
@@ -47,6 +47,11 @@ function　createTables() {
     if (err) throw err;
     console.log("Created predictions table");
   });
+  con.query(scripts.create_statistics_sql, function (err, result) {
+    if (err) throw err;
+    console.log("Created statistics table");
+  });
+  
 }
 
 exports.insertTrades = function() {

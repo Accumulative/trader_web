@@ -29,3 +29,11 @@ exports.create_predictions_sql = `CREATE TABLE IF NOT EXISTS predictions
 				pred_date DATETIME NOT NULL,
 				UNIQUE KEY pred_key (type, pred_date)
 );`
+
+exports.create_statistics_sql = `CREATE TABLE IF NOT EXISTS statistics
+(
+				id INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+				name varchar(50) NOT NULL,
+				value DECIMAL(10) NOT NULL,
+				UNIQUE KEY statistics_key (name)
+);`

@@ -11,3 +11,7 @@ exports.getTradesByDate = async function (s, e, dateName) {
 exports.getPredictionsByDate = async function (s, e, dateName) {
 	return await db.getByDate('predictions', 'pred_date ASC', dateName, s, e)
 }
+
+exports.getAllStatistics = async function () {
+	return await db.get('statistics', "name ASC", 1, 100);
+}

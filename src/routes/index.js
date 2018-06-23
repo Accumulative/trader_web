@@ -87,26 +87,40 @@ router.get('/params',  auth, async function(req, res, next) {
 });
 
 router.get('/', async function(req, res, next) {
-  res.render('home', { title: 'Home', user: req.session.user });
+  var stats = [];
+  if(req.session.user) {
+    stats = await getAllStats();
+  }
+  
+  res.render('home', { title: 'Home', user: req.session.user, statistics: JSON.stringify(stats), stats: stats });
+});
+router.post('/graphs', async function(req, res, next) {
+  var time = req.body.time;
+  res.redirect(req.originalUrl + "&time=" + time);
 });
 
 router.get('/graphs', async function(req, res, next) {
   
   var endDate = new Date();
   endDate.setTime(endDate.getTime() + (24*60*60*1000));
+  var predDateEnd = new Date();
+  predDateEnd.setTime(predDateEnd.getTime() + (24*60*60*1000) * 100);
   if(req.query.endDate) {
     endDate = new Date(parseInt(req.query.endDate));
+    predDateEnd.setTime(endDate.getTime());
   }
+  var time = 7;
+  if(req.query.time) {
+    time = req.query.time;
+  } 
   var startDate = new Date(); 
-  startDate.setTime(endDate.getTime() - (24*60*60*1000) * 30);
+  startDate.setTime(endDate.getTime() - (24*60*60*1000) * time);
 
   
   
   var period = await getParametersByName("period");
   var pair = await getParametersByName("pair");
 
-  var predDateEnd = new Date();
-  predDateEnd.setTime(predDateEnd.getTime() + (24*60*60*1000) * 100);
   var buyTrades = await getTradesByDate(startDate.getTime()/1000, endDate.getTime()/1000, "open_date");
   var sellTrades = await getTradesByDate(startDate.getTime()/1000, endDate.getTime()/1000, "close_date");
   var preds = await getPredictionsByDate(startDate.getTime()/1000, predDateEnd.getTime()/1000, "pred_date");
@@ -126,7 +140,7 @@ router.get('/graphs', async function(req, res, next) {
         break;
     } 
   });
-  res.render('graph',{ title: "Graph", user: req.session.user, buyTrades: JSON.stringify(buyTrades),sellTrades: JSON.stringify(sellTrades), 
+  res.render('graph',{ title: "Graph", user: req.session.user, time: time, buyTrades: JSON.stringify(buyTrades),sellTrades: JSON.stringify(sellTrades), 
   midPreds: JSON.stringify(midPreds), lowPreds: JSON.stringify(lowPreds),highPreds: JSON.stringify(highPreds),period: period.value, pair: pair.value, startDate: startDate, endDate: endDate});
 });
 
@@ -157,6 +171,10 @@ async function getTradesByDate(dateStart, dateFinish, dateName) {
 };
 async function getPredictionsByDate(dateStart, dateFinish, dateName) {
   let result = await tradeController.getPredictionsByDate(dateStart, dateFinish, dateName);
+  return result;
+};
+async function getAllStats() {
+  let result = await tradeController.getAllStatistics();
   return result;
 };
 

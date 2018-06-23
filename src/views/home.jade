@@ -2,5 +2,117 @@ include mixins/panel
 extend layout
 block vars
   - var page = 'home'
+  - var statArray = locals.stats
+  style(type='text/css').
+            .stat p {
+              font-size: 24px;
+              line-height: 50px;
+            }
+            .stat {
+              text-align: center;
+              height: 50px;
+              vertical-align: middle;
+            }
+            .col-md-4 {
+              padding-left: 0px;
+              padding-right: 0px;
+            }
+            .good {
+              background-color: lightgreen;
+              color: green;
+            }
+            .bad {
+              background-color: lightcoral;
+              color: darkred;
+            }
+            .reg {
+              background-color: lightblue;
+              color: blue;
+            }
+            
 block content
-  +panel("Site information") Kieran's trading platform. View the trades that have been made and change the algorithm's parameters.
+  if user == null
+    +panel("Site information","panel-info") Kieran's trading platform. View the trades that have been made and change the algorithm's parameters.
+  else
+    div
+      div(style="height:150px;")
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="assets")
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="balance")
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="total")
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="fees")
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="allocation")
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="running_time")
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="time_in_market")
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="feeConsumption")
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="time_efficiency")
+      br
+      div
+        table.table.table-hover
+          thead
+            tr
+              th ID
+              th Name
+              th Value
+          tbody
+            each stat in statArray
+              tr
+                td=stat.id
+                td=stat.name
+                td=stat.value
+  script.
+    var statList = JSON.parse('!{statistics}');
+    var balance = 0;
+    var assets = 0;
+    var fees = 0;
+    var running_time = 0;
+    var time_in_market = 0;
+    statList.forEach(function(obj) { 
+      switch(obj.name) {
+        case "assets":
+            balance = obj.value;
+          break;
+        case "balance":
+            assets = obj.value;
+          break;
+        case "fees":
+            fees = obj.value;
+          break;
+        case "running_time":
+            running_time = obj.value / 1000;
+          break;
+        case "time_in_market":
+            time_in_market = obj.value / 1000;
+          break;
+      }
+    });
+    document.getElementById("balance").innerHTML = "Balance: £" + balance;
+    document.getElementById("assets").innerHTML = "Assets: £" + assets;
+    document.getElementById("total").innerHTML = "Total: £" + (assets + balance);
+    document.getElementById("total").parentNode.className = "stat " + ((assets + balance) > 1000 ? "good" : "bad");
+    document.getElementById("allocation").innerHTML = "Allocation: " + (100 * assets / (balance+assets)).toFixed(2) + "%";
+    document.getElementById("allocation").parentNode.className = "stat " + ((assets / (balance+assets)) > 0.8 ? "good" : "bad");
+    document.getElementById("fees").innerHTML = "Fees: £" + fees;
+    document.getElementById("fees").parentNode.className = "stat " + ((fees/(balance+assets)) < 0.02 ? "good" : "bad");
+    document.getElementById("feeConsumption").innerHTML = "Fee consumption: " + (fees/(balance+assets)).toFixed(2)  + "%";
+    document.getElementById("feeConsumption").parentNode.className = "stat " + ((fees/(balance+assets)) < 0.02 ? "good" : "bad");
+    document.getElementById("running_time").innerHTML = "Overall time: " + Math.floor(running_time / (3600*24))+" D, "+Math.floor(running_time / 3600)+" H, "+Math.floor(running_time / 60)+" M";
+    document.getElementById("time_in_market").innerHTML = "Time in market: " + Math.floor(time_in_market / (3600*24))+" D, "+Math.floor(time_in_market / 3600)+" H, "+Math.floor(time_in_market / 60)+" M";
+    document.getElementById("time_efficiency").innerHTML = "Time in market(%): " + (100*time_in_market / running_time).toFixed(2)  + "%";

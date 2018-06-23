@@ -1,164 +1,168 @@
 include mixins/panel
 extend layout
 block vars
-  style(type='text/css').
-           body {
-              background-color: rgba(0, 0, 0, 0.7)
-            }
-            .custom {
-             color: white;
-            }
 
-  - var nextEndDate = new Date(endDate);
-  - nextEndDate.setTime(nextEndDate.getTime() + (24*60*60*1000) * 30);
-  - var prevEndDate = new Date(endDate);
-  - prevEndDate.setTime(prevEndDate.getTime() - (24*60*60*1000) * 30);
-  - var nextEndDateVal = nextEndDate.valueOf();
-  - var prevEndDateVal = prevEndDate.valueOf();
-  - nextEndDate = nextEndDate.toString().substr(0, 24);
-  - prevEndDate = prevEndDate.toString().substr(0, 24);
-  script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.js", type="text/javascript")
-  script.
-    var dateStart = new Date("#{startDate}").valueOf() / 1000;
-    var dateEnd = new Date("#{endDate}").valueOf() / 1000;
-    var buyTrades = JSON.parse('!{buyTrades}');
-    var sellTrades = JSON.parse('!{sellTrades}');
-    var lowPreds = JSON.parse('!{lowPreds}');
-    var midPreds = JSON.parse('!{midPreds}');
-    var highPreds = JSON.parse('!{highPreds}');
-    var page = 'graphs'
-    var url = "https://poloniex.com/public?command=returnChartData&currencyPair=#{pair}&start="+dateStart+"&end="+dateEnd+"&period=#{period}";
-    function httpGetAsync(theUrl, callback)
-    {
-        console.log(theUrl);
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function() { 
-            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-                callback(xmlHttp.responseText);
-        }
-        xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-        xmlHttp.send(null);
-    }
-    function populateChart(data)
-    {
-     var json_object = JSON.parse(data);
-     var priceArray = [];
-     var buyArray = [];
-     var sellArray = [];
-     var midArray = [];
-     var lowArray = [];
-     var highArray = [];
-     
-     json_object.forEach(function(obj) { 
-      priceArray.push({x: obj.date, y: obj.weightedAverage});
-     });
-     buyTrades.forEach(function(obj) { 
-      buyArray.push({x: obj.open_date_conv, y: obj.open_price});
-     });
-     sellTrades.forEach(function(obj) { 
-      sellArray.push({x: obj.close_date_conv, y: obj.close_price});
-     });
-     lowPreds.forEach(function(obj) { 
-      lowArray.push({x: obj.pred_date_conv, y: obj.value});
-     });
-     highPreds.forEach(function(obj) { 
-      highArray.push({x: obj.pred_date_conv, y: obj.value});
-     });
-     midPreds.forEach(function(obj) { 
-      midArray.push({x: obj.pred_date_conv, y: obj.value});
-     });
-     console.log(priceArray, buyArray);
-     var id = 'chartone';
-     var ctx = document.getElementById(id).getContext('2d');
-     var chart = new Chart(ctx, {
-         type: 'scatter',
-         data: {
-             datasets: [{
-                 data: priceArray,
-                 label: 'Prices',                     // 'buy' price data
-                 borderColor: 'rgb(200, 200, 200)', // line color
-                 backgroundColor: 'rgba(200, 200, 200, 0.3)', // fill color
-                 fill: true,                      // no fill
-                 lineTension: 0                    // straight line
-             },
-             {
-                 data: buyArray,
-                 label: 'Buy',                     // 'buy' price data
-                 borderColor: 'rgb(130, 255, 130)', // line color
-                 backgroundColor: 'rgba(30, 255, 30, 0.5)', // fill color
-                 fill: false,                      // no fill
-                 lineTension: 0                    // straight line
-             },
-             {
-                 data: sellArray,
-                 label: 'Sell',                     // 'buy' price data
-                 borderColor: 'rgb(255, 99, 132)', // line color
-                 backgroundColor: 'rgba(255, 99, 132, 0.5)', // fill color
-                 fill: false,                      // no fill
-                 lineTension: 0                    // straight line
-             },
-             {
-                 data: lowArray,
-                 label: 'Low Pred',                     // 'buy' price data
-                 borderColor: 'rgb(255, 180, 234)', // line color
-                 backgroundColor: 'rgba(255, 99, 132, 0.5)', // fill color
-                 fill: false,                      // no fill
-                 lineTension: 0                    // straight line
-             },
-             {
-                 data: midArray,
-                 label: 'Avg Pred',                     // 'buy' price data
-                 borderColor: 'rgb(23, 255, 23)', // line color
-                 backgroundColor: 'rgba(255, 99, 132, 0.5)', // fill color
-                 fill: false,                      // no fill
-                 lineTension: 0                    // straight line
-             },
-             {
-                 data: highArray,
-                 label: 'High pred',                     // 'buy' price data
-                 borderColor: 'rgb(12, 123, 132)', // line color
-                 backgroundColor: 'rgba(255, 99, 132, 0.5)', // fill color
-                 fill: false,                      // no fill
-                 lineTension: 0                    // straight line
-             }]
-         },
-         options: {
-            legend: {
-             labels: {
-                  fontColor: 'white'
-                 }
-              },
-             title: {
-                 text: 'BTC/USD (' + id + ')', // chart title
-                 fontColor: "white",
-                 display: true
-             },
-             scales: {
-               xAxes: [{
-                   ticks: {
-                       userCallback: function(label, index, labels) {
-                           return (new Date(label * 1000)).toString().substr(0, 24);
-                       },
-                       fontColor: 'white'
-                    }
-                  }
-               ],
-               yAxes: [{
-                   ticks: {
-                       fontColor: 'white'
-                    }
-                  }
-               ]}
+    - var nextEndDate = new Date(endDate);
+    - nextEndDate.setTime(nextEndDate.getTime() + (24*60*60*1000) * time);
+    - var prevEndDate = new Date(endDate);
+    - prevEndDate.setTime(prevEndDate.getTime() - (24*60*60*1000) * time);
+    - var nextEndDateVal = nextEndDate.valueOf();
+    - var prevEndDateVal = prevEndDate.valueOf();
+    - nextEndDate = nextEndDate.toString().substr(0, 24);
+    - prevEndDate = prevEndDate.toString().substr(0, 24);
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.js", type="text/javascript")
+    script.
+        var dateStart = new Date("#{startDate}").valueOf() / 1000;
+        var dateEnd = new Date("#{endDate}").valueOf() / 1000;
+        var buyTrades = JSON.parse('!{buyTrades}');
+        var sellTrades = JSON.parse('!{sellTrades}');
+        var lowPreds = JSON.parse('!{lowPreds}');
+        var midPreds = JSON.parse('!{midPreds}');
+        var highPreds = JSON.parse('!{highPreds}');
+        var page = 'graphs'
+        var url = "https://poloniex.com/public?command=returnChartData&currencyPair=#{pair}&start="+dateStart+"&end="+dateEnd+"&period=#{period}";
+        function httpGetAsync(theUrl, callback)
+        {
+            console.log(theUrl);
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.onreadystatechange = function() { 
+                if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                    callback(xmlHttp.responseText);
             }
-         }
-       );
-    }
-    httpGetAsync(url, populateChart);
+            xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+            xmlHttp.send(null);
+        }
+        function populateChart(data)
+        {
+            var json_object = JSON.parse(data);
+            var priceArray = [];
+            var buyArray = [];
+            var sellArray = [];
+            var midArray = [];
+            var lowArray = [];
+            var highArray = [];
+            
+            json_object.forEach(function(obj) { 
+            priceArray.push({x: obj.date, y: obj.weightedAverage});
+            });
+            buyTrades.forEach(function(obj) { 
+            buyArray.push({x: obj.open_date_conv, y: obj.open_price});
+            });
+            sellTrades.forEach(function(obj) { 
+            sellArray.push({x: obj.close_date_conv, y: obj.close_price});
+            });
+            lowPreds.forEach(function(obj) { 
+            lowArray.push({x: obj.pred_date_conv, y: obj.value});
+            });
+            highPreds.forEach(function(obj) { 
+            highArray.push({x: obj.pred_date_conv, y: obj.value});
+            });
+            midPreds.forEach(function(obj) { 
+            midArray.push({x: obj.pred_date_conv, y: obj.value});
+            });
+            console.log(priceArray, buyArray);
+            var id = 'chartone';
+            var ctx = document.getElementById(id).getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        data: priceArray,
+                        label: 'Prices',                     // 'buy' price data
+                        borderColor: 'rgb(200, 200, 200)', // line color
+                        backgroundColor: 'rgba(200, 200, 200, 0.3)', // fill color
+                        fill: true                      // no fill
+                        
+                    },
+                    {
+                        data: buyArray,
+                        label: 'Buy',                     // 'buy' price data
+                        borderColor: 'rgb(130, 255, 130)', // line color
+                        backgroundColor: 'rgba(30, 255, 30)', // fill color
+                        fill: false,                      // no fill
+                        showLine: false,
+                        pointRadius: 5
+                    },
+                    {
+                        data: sellArray,
+                        label: 'Sell',                     // 'buy' price data
+                        borderColor: 'rgb(255, 99, 132)', // line color
+                        backgroundColor: 'rgba(255, 99, 132)', // fill color
+                        fill: false,                      // no fill
+                        showLine: false,
+                        pointRadius: 5
+                    },
+                    {
+                        data: lowArray,
+                        label: 'Low Pred',                     // 'buy' price data
+                        borderColor: 'rgba(255, 1, 1, 0.5)', // line color
+                        backgroundColor: 'rgba(255, 1, 1, 0.5)', // fill color
+                        fill: false                      // no fill
+                        
+                    },
+                    {
+                        data: midArray,
+                        label: 'Avg Pred',                     // 'buy' price data
+                        borderColor: 'rgb(30, 30, 255)', // line color
+                        backgroundColor: 'rgba(1, 1, 255)', // fill color
+                        fill: false                      // no fill
+                        
+                    },
+                    {
+                        data: highArray,
+                        label: 'High pred',                     // 'buy' price data
+                        borderColor: 'rgba(1, 255, 1, 0.5)', // line color
+                        backgroundColor: 'rgba(1, 255, 1, 0.5)', // fill color
+                        fill: false
+                    }]
+                },
+                options: {
+                legend: {
+                    labels: {
+                        fontColor: 'white'
+                        }
+                    },
+                    title: {
+                        text: 'BTC/USD (' + id + ')', // chart title
+                        fontColor: "white",
+                        display: true
+                    },
+                    scales: {
+                    xAxes: [{
+                        ticks: {
+                            userCallback: function(label, index, labels) {
+                                return (new Date(label * 1000)).toString().substr(0, 24);
+                            },
+                            fontColor: 'white'
+                        }
+                        }
+                    ],
+                    yAxes: [{
+                        ticks: {
+                            fontColor: 'white'
+                        }
+                        }
+                    ]}
+                }
+                }
+            );
+        }
+        httpGetAsync(url, populateChart);
 block content
-  ul
-    li 
-      a(href="/graphs?endDate=#{prevEndDateVal}", class="custom") previous (#{prevEndDate})
-    li
-      a(href="/graphs?endDate=#{nextEndDateVal}", class="custom") next (#{nextEndDate})
-  canvas(id="chartone", style="background-color: rgba(0, 0, 0, 0.2)")
-  br
+    div
+        div(class="col-md-6")
+            ul
+                li 
+                    a(href="/graphs?endDate=#{prevEndDateVal}&time=#{time}", class="custom") previous (#{prevEndDate})
+                li
+                    a(href="/graphs?endDate=#{nextEndDateVal}&time=#{time}", class="custom") next (#{nextEndDate})
+        div(class="col-md-6")
+            form(action="/graphs?endDate=#{endDate.getTime()}", method="post") 
+                div(class="form-group row")
+                    label(class="col-md-2 col-form-label custom" for='time') Time
+                    div(class="col-md-5")
+                        input.form-control(type='number' id='time' placeholder='#{time}' name='time', style="background-color: black; color: white;")
+                    div(class="col-md-5")
+                        button.btn.btn-primary(type='submit') Change
+    canvas(id="chartone", style="background-color: rgba(0, 0, 0, 0.2)")
+    br
