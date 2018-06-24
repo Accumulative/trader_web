@@ -3,6 +3,7 @@ extend layout
 block vars
   - var page = 'home'
   - var statArray = locals.stats
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.js", type="text/javascript")
   style(type='text/css').
             .stat p {
               font-size: 24px;
@@ -13,7 +14,7 @@ block vars
               height: 50px;
               vertical-align: middle;
             }
-            .col-md-4 {
+            .col-md-4, .col-md-12 {
               padding-left: 0px;
               padding-right: 0px;
             }
@@ -29,13 +30,20 @@ block vars
               background-color: lightblue;
               color: blue;
             }
+            .statTitle {
+              background-color: dimgrey;
+              color: black;
+            }
             
 block content
   if user == null
     +panel("Site information","panel-info") Kieran's trading platform. View the trades that have been made and change the algorithm's parameters.
   else
     div
-      div(style="height:150px;")
+      div(style="height:750px;")
+        div(class="col-md-12")
+          div(class="stat statTitle")
+            p Trading stats
         div(class="col-md-4")
           div(class="stat reg")
             p(id="assets")
@@ -63,6 +71,27 @@ block content
         div(class="col-md-4")
           div(class="stat reg")
             p(id="time_efficiency")
+        div(class="col-md-12")
+          div(class="col-md-4")
+            canvas(id="chartone")
+          div(class="col-md-8")
+            canvas(id="charttwo")
+        br
+        div(class="col-md-12")
+          div(class="stat statTitle")
+            p 30 day info
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="longs")
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="shorts")
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="open_pos")
+        div(class="col-md-4")
+          div(class="stat reg")
+            p(id="prof_sum")
       br
       div
         table.table.table-hover
@@ -79,6 +108,8 @@ block content
                 td=stat.value
   script.
     var statList = JSON.parse('!{statistics}');
+    var inMarket = JSON.parse('!{inMarket}');
+    //- var newDates = JSON.parse('!{newDates}');
     var balance = 0;
     var assets = 0;
     var fees = 0;
@@ -87,10 +118,10 @@ block content
     statList.forEach(function(obj) { 
       switch(obj.name) {
         case "assets":
-            balance = obj.value;
+            assets = obj.value;
           break;
         case "balance":
-            assets = obj.value;
+            balance = obj.value;
           break;
         case "fees":
             fees = obj.value;
@@ -116,3 +147,81 @@ block content
     document.getElementById("running_time").innerHTML = "Overall time: " + Math.floor(running_time / (3600*24))+" D, "+Math.floor(running_time / 3600)+" H, "+Math.floor(running_time / 60)+" M";
     document.getElementById("time_in_market").innerHTML = "Time in market: " + Math.floor(time_in_market / (3600*24))+" D, "+Math.floor(time_in_market / 3600)+" H, "+Math.floor(time_in_market / 60)+" M";
     document.getElementById("time_efficiency").innerHTML = "Time in market(%): " + (100*time_in_market / running_time).toFixed(2)  + "%";
+    document.getElementById("time_efficiency").parentNode.className = "stat " + ((time_in_market / running_time) > 0.8 ? "good" : "bad");
+    
+
+    var shorts = "#{shorts}";
+    var open_pos = "#{open_pos}";
+    var prof_sum = "#{prof_sum}";
+    var longs = "#{longs}";
+
+    
+
+    document.getElementById("shorts").innerHTML = "Shorts: " + shorts;
+    document.getElementById("longs").innerHTML = "Longs: " + longs;
+    document.getElementById("open_pos").innerHTML = "Open positions: " + open_pos;
+    document.getElementById("open_pos").parentNode.className = "stat " + ((open_pos) > 0 ? "good" : "");
+    document.getElementById("prof_sum").innerHTML = "Profit (" + (parseInt(shorts) + parseInt(longs) - parseInt(open_pos)) +" trade): " + prof_sum;
+    document.getElementById("prof_sum").parentNode.className = "stat " + ((prof_sum) > 0 ? "good" : "bad");
+ 
+ 
+
+    var data = {
+      datasets: [{ 
+        data: inMarket,
+        fill: true,
+        backgroundColor: 'rgba(1, 1, 255)'
+      }]
+    };
+
+    var id = 'charttwo';
+    var ctx = document.getElementById(id).getContext('2d');
+
+    var myLineChart = new Chart(ctx,{
+        type: 'scatter',
+        data: data,
+        options: { 
+          legend: {
+            display: false
+            },
+          title: {
+              text: 'Quantity', // chart title
+              fontColor: "white",
+              display: true
+          },
+          scales: {
+            xAxes: [{
+                ticks: {
+                    userCallback: function(label, index, labels) {
+                        return (new Date(label)).toString().substr(0, 24);
+                    },
+                    fontColor: 'white'
+                }
+              }],
+            yAxes: [{
+                ticks: {
+                    fontColor: 'white'
+                  }
+                }]
+            }
+          } 
+      });
+
+    data = {
+      datasets: [{ 
+        data: [balance, assets, fees],
+        backgroundColor: ['rgba(255, 0, 0, 0.5)',　'rgba(0, 255, 0, 0.5)', 'rgba(0, 0, 255, 0.5)']
+      }],
+      labels: ['Balance', 'Assets', 'Fees']
+    };
+
+    id = 'chartone';
+    ctx = document.getElementById(id).getContext('2d');
+
+    var myPieChart = new Chart(ctx,{
+        type: 'pie',
+        data: data,
+        options: { responsive: true, animation: {
+          animateRotate: true
+        } }
+    });

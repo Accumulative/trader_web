@@ -90,9 +90,50 @@ router.get('/', async function(req, res, next) {
   var stats = [];
   if(req.session.user) {
     stats = await getAllStats();
-  }
   
-  res.render('home', { title: 'Home', user: req.session.user, statistics: JSON.stringify(stats), stats: stats });
+    var endDate = new Date();
+    endDate.setTime(endDate.getTime() + (24*60*60*1000));
+    var startDate = new Date();
+    startDate.setTime(endDate.getTime() - (24*60*60*1000) * 30);
+    var trades = await getTradesByDate(startDate.getTime()/1000, endDate.getTime()/1000, "open_date");
+    var numberOfLongs = 0;
+    var numberOfShorts = 0;
+    var openPositions = 0;
+    var sumOfProfit = 0;
+    trades.forEach(function(trade) { 
+      sumOfProfit += trade.close_price ? (trade.close_price - trade.open_price) * trade.amount : 0;
+      numberOfLongs += (trade.amount >= 0 ? 1 : 0);
+      numberOfShorts += (trade.amount < 0 ? 1 : 0);
+      openPositions += (trade.close_price ? 0 : 1);
+    });
+
+    var inMarket = [],
+    currentDate = startDate.getTime(),
+    d;
+    var period = await getParametersByName("period");
+    perid = period ? period.value : 7;
+
+    while (currentDate <= endDate.getTime()) {
+        d = currentDate;
+        var flag = 0;
+        trades.forEach(function(trade) {
+          if(trade.close_date) {
+            if(trade.open_date.getTime() < d && trade.close_date.getTime() > d) {
+              flag +=trade.amount;
+            }
+          } else if(trade.open_date.getTime() < d) {
+            flag +=trade.amount;
+          }
+        })
+        inMarket.push({x:d,y:flag});
+        currentDate += (period * 1000); // add one day
+    }
+    res.render('home', { title: 'Home', user: req.session.user, statistics: JSON.stringify(stats), stats: stats,
+  open_pos: openPositions, prof_sum: sumOfProfit, longs: numberOfLongs, shorts: numberOfShorts,
+  inMarket: JSON.stringify(inMarket) });
+  } else {
+    res.render('home', { title: 'Home', user: req.session.user } )
+  }
 });
 router.post('/graphs', async function(req, res, next) {
   var time = req.body.time;

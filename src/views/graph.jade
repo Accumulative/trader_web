@@ -60,7 +60,7 @@ block vars
             midPreds.forEach(function(obj) { 
             midArray.push({x: obj.pred_date_conv, y: obj.value});
             });
-            console.log(priceArray, buyArray);
+            //- console.log(priceArray, buyArray);
             var id = 'chartone';
             var ctx = document.getElementById(id).getContext('2d');
             var chart = new Chart(ctx, {
