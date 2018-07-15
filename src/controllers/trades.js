@@ -15,3 +15,11 @@ exports.getPredictionsByDate = async function (s, e, dateName) {
 exports.getAllStatistics = async function () {
 	return await db.get('statistics', "name ASC", 1, 100);
 }
+
+exports.getTotalFees = async function () {
+	return await db.count('trades', 'fee');
+}
+
+exports.getTimeInMarket = async function () {
+	return await db.getTimeInMarket();
+}

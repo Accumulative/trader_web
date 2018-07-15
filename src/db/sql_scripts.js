@@ -7,7 +7,8 @@ exports.create_trades_sql = `CREATE TABLE IF NOT EXISTS  trades
 				close_price DECIMAL(10,4),
 				amount DECIMAL(10,6),
 				open_date DATETIME NOT NULL,
-				close_date DATETIME
+				close_date DATETIME,
+				fee DECIMAL(10,4) DEFAULT 0 NULL
 );`
 
 exports.create_parameters_sql = `CREATE TABLE IF NOT EXISTS  parameters

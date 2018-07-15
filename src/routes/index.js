@@ -90,7 +90,6 @@ router.get('/', async function(req, res, next) {
   var stats = [];
   if(req.session.user) {
     stats = await getAllStats();
-  
     var endDate = new Date();
     endDate.setTime(endDate.getTime() + (24*60*60*1000));
     var startDate = new Date();
@@ -111,7 +110,7 @@ router.get('/', async function(req, res, next) {
     currentDate = startDate.getTime(),
     d;
     var period = await getParametersByName("period");
-    perid = period ? period.value : 7;
+    period = (period ? period.value : 7);
 
     while (currentDate <= endDate.getTime()) {
         d = currentDate;
@@ -216,7 +215,10 @@ async function getPredictionsByDate(dateStart, dateFinish, dateName) {
 };
 async function getAllStats() {
   let result = await tradeController.getAllStatistics();
+  let fee = await tradeController.getTotalFees();
+  let time_in_market = await tradeController.getTimeInMarket();
+  result.push({name: 'fees', value: fee[0].count})
+  result.push({name: 'time_in_market', value: time_in_market[0].time_in_market})
   return result;
 };
-
 module.exports = router;

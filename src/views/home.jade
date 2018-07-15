@@ -127,24 +127,31 @@ block content
             fees = obj.value;
           break;
         case "running_time":
-            running_time = obj.value / 1000;
+            running_time = obj.value;
           break;
         case "time_in_market":
-            time_in_market = obj.value / 1000;
+            time_in_market = obj.value;
           break;
       }
     });
+
+    var total = balance + assets;
+    if(assets < 0) {
+      balance = balance + 2 * assets;
+      assets = Math.abs(assets)
+    }
+
     document.getElementById("balance").innerHTML = "Balance: £" + balance;
     document.getElementById("assets").innerHTML = "Assets: £" + assets;
     document.getElementById("total").innerHTML = "Total: £" + (assets + balance);
-    document.getElementById("total").parentNode.className = "stat " + ((assets + balance) > 1000 ? "good" : "bad");
-    document.getElementById("allocation").innerHTML = "Allocation: " + (100 * assets / (balance+assets)).toFixed(2) + "%";
-    document.getElementById("allocation").parentNode.className = "stat " + ((assets / (balance+assets)) > 0.8 ? "good" : "bad");
+    document.getElementById("total").parentNode.className = "stat " + ((total) > 1000 ? "good" : "bad");
+    document.getElementById("allocation").innerHTML = "Allocation: " + (100 * assets / (total)).toFixed(2) + "%";
+    document.getElementById("allocation").parentNode.className = "stat " + ((assets / (total)) > 0.8 ? "good" : "bad");
     document.getElementById("fees").innerHTML = "Fees: £" + fees;
-    document.getElementById("fees").parentNode.className = "stat " + ((fees/(balance+assets)) < 0.02 ? "good" : "bad");
-    document.getElementById("feeConsumption").innerHTML = "Fee consumption: " + (fees/(balance+assets)).toFixed(2)  + "%";
-    document.getElementById("feeConsumption").parentNode.className = "stat " + ((fees/(balance+assets)) < 0.02 ? "good" : "bad");
-    document.getElementById("running_time").innerHTML = "Overall time: " + Math.floor(running_time / (3600*24))+" D, "+Math.floor(running_time / 3600)+" H, "+Math.floor(running_time / 60)+" M";
+    document.getElementById("fees").parentNode.className = "stat " + ((fees/(total)) < 0.02 ? "good" : "bad");
+    document.getElementById("feeConsumption").innerHTML = "Fee consumption: " + (100*fees/(total)).toFixed(2)  + "%";
+    document.getElementById("feeConsumption").parentNode.className = "stat " + ((fees/(total)) < 0.02 ? "good" : "bad");
+    document.getElementById("running_time").innerHTML = "Overall time: " + Math.floor(running_time / (3600*24))+" D, "+Math.floor(running_time % 3600)+" H, "+Math.floor(running_time % 60)+" M";
     document.getElementById("time_in_market").innerHTML = "Time in market: " + Math.floor(time_in_market / (3600*24))+" D, "+Math.floor(time_in_market / 3600)+" H, "+Math.floor(time_in_market / 60)+" M";
     document.getElementById("time_efficiency").innerHTML = "Time in market(%): " + (100*time_in_market / running_time).toFixed(2)  + "%";
     document.getElementById("time_efficiency").parentNode.className = "stat " + ((time_in_market / running_time) > 0.8 ? "good" : "bad");
@@ -161,7 +168,7 @@ block content
     document.getElementById("longs").innerHTML = "Longs: " + longs;
     document.getElementById("open_pos").innerHTML = "Open positions: " + open_pos;
     document.getElementById("open_pos").parentNode.className = "stat " + ((open_pos) > 0 ? "good" : "");
-    document.getElementById("prof_sum").innerHTML = "Profit (" + (parseInt(shorts) + parseInt(longs) - parseInt(open_pos)) +" trade): " + prof_sum;
+    document.getElementById("prof_sum").innerHTML = "Profit (" + (parseInt(shorts) + parseInt(longs) - parseInt(open_pos)) +" trade): £" + parseInt(prof_sum);
     document.getElementById("prof_sum").parentNode.className = "stat " + ((prof_sum) > 0 ? "good" : "bad");
  
  
@@ -181,6 +188,13 @@ block content
         type: 'scatter',
         data: data,
         options: { 
+          tooltips: {
+              callbacks: {
+                  label: function(tooltipItem, data) {
+                      return (new Date(tooltipItem.xLabel)).toString().substr(0, 24) + ", " + tooltipItem.yLabel;
+                  }
+              }
+          },
           legend: {
             display: false
             },
